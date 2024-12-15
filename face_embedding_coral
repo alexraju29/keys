@@ -1,0 +1,55 @@
+import time
+from enum import Enum
+
+from numpy import load, expand_dims, asarray, dot, transpose, sqrt, linalg, array as np_array
+
+from sklearn.preprocessing import LabelEncoder, Normalizer
+from sklearn.svm import SVC
+
+
+matched_distance_threshold = .4
+
+
+def get_embedding(face_pixels):
+        required_image_shape = get_image_dimensions_for_embedding_model(embedding_model) + (3,)
+        # Confirm we're using a proper sized image to generate the embedding with
+        if face_pixels.shape != required_image_shape:
+            raise Exception("Invalid shape: {} for embedding mode method: {}".format(face_pixels.shape, self.embedding_model))
+
+        # scale pixel values
+        face_pixels = face_pixels.astype('float32')
+        # standardize pixel values across channels (global)
+        mean, std = face_pixels.mean(), face_pixels.std()
+        face_pixels = (face_pixels - mean) / std
+        # transform face into one sample
+        sample = expand_dims(face_pixels, axis=0)
+
+        sample = sample.flatten()
+        # normalize values to between 0 and 255 (UINT)
+        sample *= 255.0/sample.max()
+        # convert to UNIT8
+        sample = sample.astype(np_uint8)
+        embeddings = face_embedding_engine.run_inference(sample)
+        result = embeddings[1]
+
+        return result
+
+def get_image_dimensions_for_embedding_model(embedding_model):
+    ''' function get_image_dimensions_for_embedding_model
+
+    Get the required dimensions for images to use with the given embedding model
+
+    Args:
+        embedding_model (FaceEmbeddingModelEnum): The model being used for generating
+                        embeddings for face images
+
+    Returns:
+        A tuple of the required width,height dimensions for images used by the given embedding model
+    '''
+    result = None
+    if embedding_model in (FaceEmbeddingModelEnum.CELEBRITY_KERAS, FaceEmbeddingModelEnum.CELEBRITY_TFLITE):
+        result = (160, 160)
+    else:
+        raise Exception("Invalid embedding model: {}".format(embedding_model))
+
+    return result
